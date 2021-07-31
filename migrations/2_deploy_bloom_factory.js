@@ -1,7 +1,9 @@
+const BloomFactory = artifacts.require("BloomFactory");
 const MockErc20 = artifacts.require("MockErc20");
 const Web3 = require("web3");
 
 module.exports = function (deployer) {
+  
   deployer.then(async () => {
     await deployer.deploy(
         MockErc20,
@@ -11,4 +13,12 @@ module.exports = function (deployer) {
         "0x4D39DC70B6C840799435d1F036D773db85FedC9A"
     );
   });
+  deployer.then(async () => {
+    await deployer.deploy(
+        BloomFactory,
+        MockErc20.address,
+        "0x4D39DC70B6C840799435d1F036D773db85FedC9A",
+    );
+  });
+  
 };

@@ -40,7 +40,7 @@ contract BloomFactory is IBloomFactory {
     }
 
     function setOwner(address _owner) external override {
-        require(msg.sender == owner, 'DeXFaiv0: FORBIDDEN');
+        require(msg.sender == owner, 'BloomCurve: FORBIDDEN');
         owner = _owner;
     }
 }
