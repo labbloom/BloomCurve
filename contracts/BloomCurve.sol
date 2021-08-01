@@ -14,8 +14,8 @@ contract BloomCurve is BancorFormula, IBloomCurve {
         1/2 corresponds to y= multiple * x
         2/3 corresponds to y= multiple * x^1/2
     */
-    uint256 internal redeemFee = 100;
-    uint256 internal mintFee = 100;
+    uint256 internal totalFee = 210;
+    uint256 internal factoryFee = 10;
     address public owner;
     address public factory;
     mapping(address => uint256) private balances;
@@ -55,38 +55,42 @@ contract BloomCurve is BancorFormula, IBloomCurve {
         return calculateSaleReturn(totalSupply(), balanceOf(address(this)), reserveRatio, _continuousTokenAmount);
     }
 
-    function continuousMint(uint256 _deposit) internal returns (bool) {
+    function continuousMint(uint256 _deposit) internal returns (uint256) {
         require(_deposit > 0, "Deposit must be non-zero.");
         uint256 rewardAmount = getContinuousMintAmount(_deposit);
         _mint(msg.sender, rewardAmount);
         emit Minted(msg.sender, rewardAmount, _deposit);
-        return true;
+        return rewardAmount;
     }
 
-    function continuousBurn(uint256 _amount) internal returns (bool) {
+    function continuousBurn(uint256 _amount) internal returns (uint256) {
         require(_amount > 0, "Amount must be non-zero.");
         require(balanceOf(msg.sender) >= _amount, "Insufficient tokens to burn.");
         uint256 refundAmount = getContinuousRedeemAmount(_amount);
         _burn(msg.sender, _amount);
         emit Redeemed(msg.sender, _amount, refundAmount);
-        return true;
+        return refundAmount;
     }
 
     function mint(uint256 _amount) external override returns (bool) {
-        uint256 mintTax = (_amount * mintFee) / 1000;
+        uint256 mintTax = (_amount * totalFee) / 1000;
+        uint256 factoryTax = (_amount * factoryFee) / 1000;
         uint256 adjustedAmount = _amount - mintTax;
         continuousMint(adjustedAmount);
         require(IERC20(reserveToken).transferFrom(msg.sender, address(this), _amount), "mint() ERC20.transferFrom failed.");
-        require(IERC20(reserveToken).transfer(owner, mintTax), "mint() ERC20.transferFrom failed.");
+        require(IERC20(reserveToken).transfer(owner, mintTax - factoryTax), "mint() ERC20.transferFrom failed.");
+        require(IERC20(reserveToken).transfer(factory, factoryTax), "mint() ERC20.transferFrom failed.");
         return true;
     }
 
     function redeem(uint256 _amount) external override returns (bool) {
-        uint256 redeemTax = (_amount * redeemFee) / 1000;
-        uint256 adjustedAmount = _amount - redeemTax;
-        continuousBurn(adjustedAmount);
+        uint256 returnAmount = continuousBurn(_amount);
+        uint256 redeemTax = (returnAmount * totalFee) / 1000;
+        uint256 factoryTax = (returnAmount * factoryFee) / 1000;
+        uint256 adjustedAmount = returnAmount - redeemTax;
         require(IERC20(reserveToken).transfer(msg.sender, adjustedAmount), "burn() ERC20.transfer failed.");
-        require(IERC20(reserveToken).transfer(owner, redeemTax), "burn() ERC20.transfer failed.");
+        require(IERC20(reserveToken).transfer(owner, redeemTax - factoryTax), "burn() ERC20.transfer failed.");
+        require(IERC20(reserveToken).transfer(factory, factoryTax), "burn() ERC20.transfer failed.");
         return true;
     }
 

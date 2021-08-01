@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./BloomCurve.sol";
 import "./interfaces/IBloomCurve.sol";
 import "./interfaces/IBloomFactory.sol";
+import "./interfaces/IERC20.sol";
 
 contract BloomFactory is IBloomFactory {
     address public owner;
@@ -43,5 +44,10 @@ contract BloomFactory is IBloomFactory {
     function setOwner(address _owner) external override {
         require(msg.sender == owner, 'BloomCurve: FORBIDDEN');
         owner = _owner;
+    }
+
+    function getFees(address _token, uint256 _amount, address _wallet) external override {
+        require(msg.sender == owner, 'BloomCurve: FORBIDDEN');
+        IERC20(_token).transfer(_wallet, _amount);
     }
 }
