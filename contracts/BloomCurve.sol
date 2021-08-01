@@ -14,8 +14,8 @@ contract BloomCurve is BancorFormula, IBloomCurve {
         1/2 corresponds to y= multiple * x
         2/3 corresponds to y= multiple * x^1/2
     */
-    uint256 internal redeemFee = 5;
-    uint256 internal mintFee = 20;
+    uint256 internal redeemFee = 100;
+    uint256 internal mintFee = 100;
     address public owner;
     address public factory;
     mapping(address => uint256) private balances;
@@ -72,10 +72,11 @@ contract BloomCurve is BancorFormula, IBloomCurve {
     }
 
     function mint(uint256 _amount) external override returns (bool) {
-        uint256 mintTax = (_amount * mintFee) / 100;
+        uint256 mintTax = (_amount * mintFee) / 1000;
         uint256 adjustedAmount = _amount - mintTax;
         continuousMint(adjustedAmount);
-        require(IERC20(reserveToken).transferFrom(msg.sender, owner, mintTax), "mint() ERC20.transferFrom failed.");
+        require(IERC20(reserveToken).transferFrom(msg.sender, address(this), _amount), "mint() ERC20.transferFrom failed.");
+        require(IERC20(reserveToken).transfer(owner, mintTax), "mint() ERC20.transferFrom failed.");
         return true;
     }
 
@@ -84,6 +85,7 @@ contract BloomCurve is BancorFormula, IBloomCurve {
         uint256 adjustedAmount = _amount - redeemTax;
         continuousBurn(adjustedAmount);
         require(IERC20(reserveToken).transfer(msg.sender, adjustedAmount), "burn() ERC20.transfer failed.");
+        require(IERC20(reserveToken).transfer(owner, redeemTax), "burn() ERC20.transfer failed.");
         return true;
     }
 
