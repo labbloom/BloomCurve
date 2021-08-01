@@ -25,7 +25,8 @@ contract BloomFactory is IBloomFactory {
     function createCurve(
         string memory _tokenName, 
         string memory _tokenSymbol, 
-        uint32 _reserveRatio
+        uint32 _reserveRatio,
+        address _user
         ) external override returns (address curve) {
         require(getCurve[msg.sender] == address(0), 'BloomCurve: CURVE_EXISTS'); 
         bytes memory bytecode = type(BloomCurve).creationCode;
@@ -33,7 +34,7 @@ contract BloomFactory is IBloomFactory {
         assembly {
             curve := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
-        IBloomCurve(curve).initialize(_tokenSymbol,_tokenName, msg.sender, reserveToken, _reserveRatio);
+        IBloomCurve(curve).initialize(_tokenSymbol,_tokenName, _user, reserveToken, _reserveRatio);
         getCurve[msg.sender] = curve;
         allCurves.push(curve);
         emit CurveCreated(msg.sender, curve, allCurves.length);
