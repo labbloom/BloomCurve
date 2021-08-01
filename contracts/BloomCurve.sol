@@ -76,8 +76,8 @@ contract BloomCurve is BancorFormula, IBloomCurve {
         uint256 mintTax = (_amount * totalFee) / 1000;
         uint256 factoryTax = (_amount * factoryFee) / 1000;
         uint256 adjustedAmount = _amount - mintTax;
-        continuousMint(adjustedAmount);
         require(IERC20(reserveToken).transferFrom(msg.sender, address(this), _amount), "mint() ERC20.transferFrom failed.");
+        continuousMint(adjustedAmount);
         require(IERC20(reserveToken).transfer(owner, mintTax - factoryTax), "mint() ERC20.transferFrom failed.");
         require(IERC20(reserveToken).transfer(factory, factoryTax), "mint() ERC20.transferFrom failed.");
         return true;
