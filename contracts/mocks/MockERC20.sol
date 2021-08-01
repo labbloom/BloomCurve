@@ -1,6 +1,8 @@
 pragma solidity ^0.8.0;
 
-contract MockErc20 {
+import "./IMockErc20.sol";
+
+contract MockErc20 is IMockErc20 {
     address public owner;
     mapping(address => uint256) private balances;
 
@@ -24,36 +26,36 @@ contract MockErc20 {
     }
 
 
-    function name() external view returns (string memory) {
+    function name() external view override returns (string memory) {
         return tokenName;
     }
 
-    function symbol() external view returns (string memory) {
+    function symbol() external view override returns (string memory) {
         return tokenSymbol;
     }
 
-    function decimals() external view returns (uint8) {
+    function decimals() external view override returns (uint8) {
         return 18;
     }
 
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() public view override returns (uint256) {
         return tokenTotalSupply;
     }
 
-    function balanceOf(address _account) public view returns (uint256) {
+    function balanceOf(address _account) public view override returns (uint256) {
         return balances[_account];
     }
 
-    function transfer(address _recipient, uint256 _amount) external returns (bool) {
+    function transfer(address _recipient, uint256 _amount) external override returns (bool) {
         _transfer(msg.sender, _recipient, _amount);
         return true;
     }
 
-    function allowance(address _owner, address _spender) external view returns (uint256) {
+    function allowance(address _owner, address _spender) external view override returns (uint256) {
         return allowances[_owner][_spender];
     }
 
-    function approve(address _spender, uint256 _amount) external returns (bool) {
+    function approve(address _spender, uint256 _amount) external override returns (bool) {
         _approve(msg.sender, _spender, _amount);
         return true;
     }
@@ -74,7 +76,7 @@ contract MockErc20 {
         address _sender,
         address _recipient,
         uint256 _amount
-    ) external returns (bool) {
+    ) external override returns (bool) {
         _transfer(_sender, _recipient, _amount);
 
         uint256 currentAllowance = allowances[_sender][msg.sender];
@@ -85,12 +87,12 @@ contract MockErc20 {
         return true;
     }
 
-    function increaseAllowance(address _spender, uint256 _addedValue) external returns (bool) {
+    function increaseAllowance(address _spender, uint256 _addedValue) external override returns (bool) {
         _approve(msg.sender, _spender, allowances[msg.sender][_spender] + _addedValue);
         return true;
     }
 
-    function decreaseAllowance(address _spender, uint256 _subtractedValue) external returns (bool) {
+    function decreaseAllowance(address _spender, uint256 _subtractedValue) external override returns (bool) {
         uint256 currentAllowance = allowances[msg.sender][_spender];
         require(currentAllowance >= _subtractedValue, "ERC20: decreased allowance below zero");
         unchecked {
@@ -135,7 +137,7 @@ contract MockErc20 {
     }
 
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner.
-    function mint(address _to, uint256 _amount) public {
+    function mint(address _to, uint256 _amount) public override {
         require(msg.sender == owner, 'ERC20: FORBIDDEN');
         _mint(_to, _amount);
     }
