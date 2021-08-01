@@ -7,7 +7,7 @@ import "./interfaces/IERC20.sol";
 
 contract BloomCurve is BancorFormula, IBloomCurve {
     address public reserveToken;
-    uint32 internal reserveRatio;
+    uint32 public reserveRatio;
     /*
         reserve ratio, represented in ppm, 1-1000000
         1/3 corresponds to y= multiple * x^2
@@ -22,13 +22,14 @@ contract BloomCurve is BancorFormula, IBloomCurve {
 
     mapping(address => mapping(address => uint256)) private allowances;
 
-    uint256 private tokenTotalSupply = 0;
+    uint256 private tokenTotalSupply = 10**3;
     string private tokenName; 
     string private tokenSymbol; 
 
 
     constructor() public {
         factory = msg.sender;
+        _mint(address(this), 10**3);
     }
 
     function initialize(

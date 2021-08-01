@@ -12,11 +12,11 @@ module.exports = function (deployer) {
         "MOCK",
         "0x4D39DC70B6C840799435d1F036D773db85FedC9A"
     );
-  });*/
+  }); */
   deployer.then(async () => {
     await deployer.deploy(
         BloomFactory,
-        "0xf488223D11bb2c0f56AE12509A95A7329E0DA717", // mock token
+        "0xD62D1916bf5931Ca1715fbea4138c55F1b09650D", // mock token
         "0x4D39DC70B6C840799435d1F036D773db85FedC9A", // owner address
     );
   });
